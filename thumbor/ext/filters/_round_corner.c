@@ -38,9 +38,17 @@ _round_corner_apply(PyObject *self, PyObject *args)
     float x;
     int y = 0;
 
-    #ifndef NDEBUG
     int image_size = width * height * num_bytes;
-    #endif
+
+    unsigned char *original = NULL;
+    if (transparent == 1) {
+        original = (unsigned char *) malloc(image_size);
+        if (original == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
+        memcpy(original, ptr, image_size);
+    }
 
     for (y = 0; y <= b_rad; y += 1) {
         x = (float)(-(a_rad * sqrt((b_rad * b_rad) - (y * y))) / b_rad);
@@ -142,21 +150,25 @@ _round_corner_apply(PyObject *self, PyObject *args)
             float aa = 1.f - ((idx / (float)pixel_count_x) * aa_amount);
 
             if (transparent == 1) {
-                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa));
-                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa));
-                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa));
+                ptr[top_left + r_idx] = original[top_left + r_idx];
+                ptr[top_left + g_idx] = original[top_left + g_idx];
+                ptr[top_left + b_idx] = original[top_left + b_idx];
+                ptr[top_left + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa));
-                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa));
-                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa));
+                ptr[bottom_left + r_idx] = original[bottom_left + r_idx];
+                ptr[bottom_left + g_idx] = original[bottom_left + g_idx];
+                ptr[bottom_left + b_idx] = original[bottom_left + b_idx];
+                ptr[bottom_left + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa));
-                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa));
-                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa));
+                ptr[top_right + r_idx] = original[top_right + r_idx];
+                ptr[top_right + g_idx] = original[top_right + g_idx];
+                ptr[top_right + b_idx] = original[top_right + b_idx];
+                ptr[top_right + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa));
-                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa));
-                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa));
+                ptr[bottom_right + r_idx] = original[bottom_right + r_idx];
+                ptr[bottom_right + g_idx] = original[bottom_right + g_idx];
+                ptr[bottom_right + b_idx] = original[bottom_right + b_idx];
+                ptr[bottom_right + a_idx] = (unsigned char)((1.f - aa) * 255.f);
             } else {
                 ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
                 ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
@@ -227,21 +239,25 @@ _round_corner_apply(PyObject *self, PyObject *args)
             float aa = 1.f - ((idx / (float)pixel_count_y) * aa_amount);
 
             if (transparent == 1) {
-                ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa));
-                ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa));
-                ptr[top_left + b_idx] = (color_top_left[b_idx] * (1.f - aa));
+                ptr[top_left + r_idx] = original[top_left + r_idx];
+                ptr[top_left + g_idx] = original[top_left + g_idx];
+                ptr[top_left + b_idx] = original[top_left + b_idx];
+                ptr[top_left + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[bottom_left + r_idx] = (color_bottom_left[r_idx] * (1.f - aa));
-                ptr[bottom_left + g_idx] = (color_bottom_left[g_idx] * (1.f - aa));
-                ptr[bottom_left + b_idx] = (color_bottom_left[b_idx] * (1.f - aa));
+                ptr[bottom_left + r_idx] = original[bottom_left + r_idx];
+                ptr[bottom_left + g_idx] = original[bottom_left + g_idx];
+                ptr[bottom_left + b_idx] = original[bottom_left + b_idx];
+                ptr[bottom_left + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[top_right + r_idx] = (color_top_right[r_idx] * (1.f - aa));
-                ptr[top_right + g_idx] = (color_top_right[g_idx] * (1.f - aa));
-                ptr[top_right + b_idx] = (color_top_right[b_idx] * (1.f - aa));
+                ptr[top_right + r_idx] = original[top_right + r_idx];
+                ptr[top_right + g_idx] = original[top_right + g_idx];
+                ptr[top_right + b_idx] = original[top_right + b_idx];
+                ptr[top_right + a_idx] = (unsigned char)((1.f - aa) * 255.f);
 
-                ptr[bottom_right + r_idx] = (color_bottom_right[r_idx] * (1.f - aa));
-                ptr[bottom_right + g_idx] = (color_bottom_right[g_idx] * (1.f - aa));
-                ptr[bottom_right + b_idx] = (color_bottom_right[b_idx] * (1.f - aa));
+                ptr[bottom_right + r_idx] = original[bottom_right + r_idx];
+                ptr[bottom_right + g_idx] = original[bottom_right + g_idx];
+                ptr[bottom_right + b_idx] = original[bottom_right + b_idx];
+                ptr[bottom_right + a_idx] = (unsigned char)((1.f - aa) * 255.f);
             } else {
                 ptr[top_left + r_idx] = (color_top_left[r_idx] * (1.f - aa)) + (r * (aa));
                 ptr[top_left + g_idx] = (color_top_left[g_idx] * (1.f - aa)) + (g * (aa));
@@ -263,6 +279,10 @@ _round_corner_apply(PyObject *self, PyObject *args)
     }
 
 END:
+
+    if (original != NULL) {
+        free(original);
+    }
 
     Py_INCREF(buffer);
     return buffer;
