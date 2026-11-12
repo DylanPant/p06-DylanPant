@@ -276,7 +276,39 @@ class Engine(BaseEngine):
                     if pillow_features.check("libimagequant")
                     else None
                 )
+
+                # quantize() keeps the palette alpha but does not set
+                # info["transparency"]. PNG can encode the palette alpha
+                # directly, but the GIF writer receives an already indexed
+                # image and so never infers which single index is the
+                # transparent one; the resized GIF then comes back fully
+                # opaque. Remember the fully transparent pixels so the index
+                # they quantize to can be restored afterwards. A source with
+                # no fully transparent pixels stays opaque, and one with only
+                # partial alpha does too, since GIF has a single bit of
+                # alpha.
+                fully_transparent = None
+                if self.image.mode == "RGBA":
+                    alpha = self.image.getchannel("A")
+                    fully_transparent = [
+                        value == 0 for value in alpha.getdata()
+                    ]
+                    if not any(fully_transparent):
+                        fully_transparent = None
+
                 self.image = self.image.quantize(method=quantize_method)
+
+                if fully_transparent is not None:
+                    data = list(self.image.getdata())
+                    indices = {
+                        data[position]
+                        for position, transparent in enumerate(
+                            fully_transparent
+                        )
+                        if transparent
+                    }
+                    if len(indices) == 1:
+                        self.image.info["transparency"] = indices.pop()
 
         ext = requested_extension or self.get_default_extension()
 
